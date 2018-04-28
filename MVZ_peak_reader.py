@@ -60,12 +60,13 @@ def look_for_peaks(filtered_data):
     M3 = []
     for sample in filtered_data:
         for fragment in filtered_data[sample]:
-            if fragment['dye'].startswith('B') and 150 < fragment['size'] < 154:
-                pass
+            if fragment['dye'].startswith('B') and 188 < fragment['size'] < 192:
+                print('Sample {} has a peak at size {} with height {}.'.format(sample, fragment['size'], fragment['height']))
 
 def main():
     peak_data = populate_dict()
     filtered_data = check_quality(peak_data)
+    look_for_peaks(filtered_data)
 
     # for sample in peak_data:
     #     print('{}\n{}'.format(sample, peak_data[sample]))
