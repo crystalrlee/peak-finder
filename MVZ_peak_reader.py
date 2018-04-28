@@ -19,15 +19,25 @@ def populate_dict():
     reader = csv.reader(data, delimiter='\t')
     next(reader, None) # skips the header line
     for row in reader:
-        # Makes a dictionary where each sample is a key
+        # Sets each sample as a key
         sample_name = row[1]
         if sample_name not in peak_data:
             peak_data[sample_name] = []
+        # Converts size and height data to floats
+        try:
+            size = float(row[13])
+        except:
+            size = 0
+        try:
+            height = float(row[14])
+        except:
+            height = 0
+        # Maps sample to a dicitonary of it's properties
         peak_data[sample_name].append({
             'quality': row[7],
             'dye': row[11],
-            'size': float(row[13]),
-            'height': float(row[14])
+            'size': size,
+            'height': height
         })
     return peak_data
 
