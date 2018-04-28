@@ -3,6 +3,15 @@
 
 import csv
 
+# {
+#     key1:[
+#         {'quality': '', 'dye': '', 'size': '', height: ''}, {}, {}
+#     ],
+#     key2:[
+#         {}, {}, {}
+#     ]
+# }
+
 def populate_dict():
     peak_data = {}
     # Opens & reads a tab delineated .txt file
@@ -22,10 +31,24 @@ def populate_dict():
         })
     return peak_data
 
+# Prints out samples that failed, removes them from sample dictionary
+def check_quality(peak_data):
+    failed_samples = []
+    # Creates a list of samples that failed
+    for sample in peak_data:
+        if peak_data[sample][0]['quality'] == 'Fail':
+            failed_samples.append(sample)
+    print('These samples failed: \n{}'.format(failed_samples))
+    # Deletes failed samples from dictionary
+    for fail in failed_samples:
+        del peak_data[fail]
+    return peak_data
 
 def main():
     peak_data = populate_dict()
-    for sample in peak_data:
-        print('{}\n{}'.format(sample, peak_data[sample]))
+    filtered_data = check_quality(peak_data)
+
+    # for sample in peak_data:
+    #     print('{}\n{}'.format(sample, peak_data[sample]))
 
 main()
