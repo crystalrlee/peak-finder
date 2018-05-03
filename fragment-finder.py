@@ -50,7 +50,7 @@ def check_quality(peak_data):
     for sample in peak_data:
         if peak_data[sample][0]['quality'] == 'Fail':
             failed_samples.append(sample)
-    print('These samples failed: \n{}'.format(failed_samples))
+    print('\nThese samples failed: \n{}\n'.format(failed_samples))
     # Deletes failed samples from dictionary
     for fail in failed_samples:
         del peak_data[fail]
@@ -58,12 +58,54 @@ def check_quality(peak_data):
 
 # Looks for important peaks
 def look_for_peaks(filtered_data):
-    # Checks for M3 peaks
-    M3 = []
+    # M3 peaks
+    possible_id = {
+        'Schizophyllum': [],
+        'Perenniporia': [],
+        'Stereum': [],
+        'Trametes': []
+    }
+    # Populates a dictionary called possible_id with M3 found peak data
     for sample in filtered_data:
         for fragment in filtered_data[sample]:
+            # Schizophyllum
             if fragment['dye'].startswith('B') and 188 < fragment['size'] < 192:
-                print('Sample {} has a peak at size {} with height {}.'.format(sample, fragment['size'], fragment['height']))
+                possible_id['Schizophyllum'].append({
+                    'sample': sample,
+                    'size': fragment['size'],
+                    'height': fragment['height']
+                })
+            # Perenniporia
+            if fragment['dye'].startswith('B') and 150 < fragment['size'] < 154:
+                possible_id['Perenniporia'].append({
+                    'sample': sample,
+                    'size': fragment['size'],
+                    'height': fragment['height']
+                })
+            # Stereum
+            if fragment['dye'].startswith('B') and 231 < fragment['size'] < 236 or fragment['dye'].startswith('B') and 241 < fragment['size'] < 245:
+                possible_id['Stereum'].append({
+                    'sample': sample,
+                    'size': fragment['size'],
+                    'height': fragment['height']
+                })
+            # Trametes
+            if fragment['dye'].startswith('G') and 219 < fragment['size'] < 223:
+                possible_id['Trametes'].append({
+                    'sample': sample,
+                    'size': fragment['size'],
+                    'height': fragment['height']
+                })
+    # Takes possible_id and prints it to a .csv file
+    csvfile = open("/home/crystal/Education/bio_work/python_project_MVZ/python_peak_output.csv", "w")
+    writer = csv.writer(csvfile, delimiter='\t')
+    # Writes header
+    writer.writerow(['PEAK ID','SAMPLE', 'SIZE', 'HEIGHT'])
+    for species in possible_id:
+        for peak_dict in possible_id[species]:
+            #print(i)
+            writer.writerow([species, peak_dict['sample'], peak_dict['size'], peak_dict['height']])
+
 
 def main():
     peak_data = populate_dict()
