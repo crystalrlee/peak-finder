@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Takes in tab seperated .txt files with DNA peak data- generate by export all in software
 # Outputs peaks of importance for M2, M3, Mgano, and Mhyme assays
 
