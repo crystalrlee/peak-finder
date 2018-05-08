@@ -43,35 +43,40 @@ def populate_dict():
         })
     return peak_data
 
-# Prints out samples that failed, removes them from sample dictionary
-def check_quality(peak_data):
-    failed_samples = []
-    # Creates a list of samples that failed
-    for sample in peak_data:
-        if peak_data[sample][0]['quality'] == 'Fail':
-            failed_samples.append(sample)
-    print('\nThese samples failed: \n{}\n'.format(failed_samples))
-    # Deletes failed samples from dictionary
-    for fail in failed_samples:
-        del peak_data[fail]
-    return peak_data
 
 # Looks for important peaks
-def look_for_peaks(filtered_data):
+def look_for_peaks(peak_data):
+    # Populates a dictionary called peaks_of_interest with peaks of interest.
+    # Keys organize failed samples into one list, and the other lists are possible
+    # species identifications
+
     # M3 peaks
-    possible_id = {
+    peaks_of_interest = {
         'Failed Sample': [],
         'Schizophyllum': [],
         'Perenniporia': [],
         'Stereum': [],
         'Trametes': []
     }
-    # Populates a dictionary called possible_id with M3 found peak data
-    for sample in filtered_data:
-        for fragment in filtered_data[sample]:
+    # Empty list to hold failed sample names
+    list_of_failed_samples = []
+    # Populates a dictionary called peaks_of_interest with M3 found peak data
+    for sample in peak_data:
+        for fragment in peak_data[sample]:
+            # Looks for failed samples
+            if fragment['quality'] == 'Fail':
+                if sample not in list_of_failed_samples:
+                    peaks_of_interest['Failed Sample'].append({
+                        'sample': sample,
+                        'size': fragment['size'],
+                        'height': fragment['height'],
+                        'quality': fragment['quality']
+                    })
+                    list_of_failed_samples.append(sample)
+
             # Schizophyllum
             if fragment['dye'].startswith('B') and 188 < fragment['size'] < 192:
-                possible_id['Schizophyllum'].append({
+                peaks_of_interest['Schizophyllum'].append({
                     'sample': sample,
                     'size': fragment['size'],
                     'height': fragment['height'],
@@ -79,7 +84,7 @@ def look_for_peaks(filtered_data):
                 })
             # Perenniporia
             if fragment['dye'].startswith('B') and 150 < fragment['size'] < 154:
-                possible_id['Perenniporia'].append({
+                peaks_of_interest['Perenniporia'].append({
                     'sample': sample,
                     'size': fragment['size'],
                     'height': fragment['height'],
@@ -87,7 +92,7 @@ def look_for_peaks(filtered_data):
                 })
             # Stereum
             if fragment['dye'].startswith('B') and 231 < fragment['size'] < 236 or fragment['dye'].startswith('B') and 241 < fragment['size'] < 245:
-                possible_id['Stereum'].append({
+                peaks_of_interest['Stereum'].append({
                     'sample': sample,
                     'size': fragment['size'],
                     'height': fragment['height'],
@@ -95,25 +100,25 @@ def look_for_peaks(filtered_data):
                 })
             # Trametes
             if fragment['dye'].startswith('G') and 219 < fragment['size'] < 223:
-                possible_id['Trametes'].append({
+                peaks_of_interest['Trametes'].append({
                     'sample': sample,
                     'size': fragment['size'],
                     'height': fragment['height'],
                     'quality': fragment['quality']
                 })
-    # Takes possible_id and prints it to a .csv file
-    csvfile = open("/home/crystal/Education/bio_work/python_project_MVZ/m3-python-peaks.csv", "w")
+    # Takes peaks_of_interest and prints it to a .csv file
+    csvfile = open("/home/crystal/Education/bio_work/python_project_MVZ/m3-python-peaks_quality2.csv", "w")
     writer = csv.writer(csvfile, delimiter='\t')
     # Writes header
     writer.writerow(['PEAK ID','SAMPLE', 'SIZE', 'HEIGHT', 'QUALITY'])
     # Writes rows
-    for species in possible_id:
-        for peak_dict in possible_id[species]:
+    for species in peaks_of_interest:
+        for peak_dict in peaks_of_interest[species]:
             writer.writerow([species, peak_dict['sample'], peak_dict['size'], peak_dict['height'], peak_dict['quality']])
 
+    print(list_of_failed_samples)
 def main():
     peak_data = populate_dict()
-    filtered_data = check_quality(peak_data)
-    look_for_peaks(filtered_data)
+    look_for_peaks(peak_data)
 
 main()
