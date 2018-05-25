@@ -48,9 +48,9 @@ class ProgramWindow(QtWidgets.QMainWindow):
         self.output_filename = None
 
         # Opens and styles main window
-        self.setWindowTitle('Fragment Analysis Peak Parser')
+        self.setWindowTitle('Peaks of Interest')
         self.show()
-        self.resize(450, 200)
+        self.resize(450, 180)
 
         # Assay dropdown
         assay_label = QtWidgets.QLabel('Choose assay: ')
@@ -92,6 +92,9 @@ class ProgramWindow(QtWidgets.QMainWindow):
         run_button = QtWidgets.QPushButton('Run')
         run_button.clicked.connect(self.run_program)
 
+        # Status Bar (to display when files are saved)
+        self.status_bar = QtWidgets.QStatusBar()
+        self.status_bar.setSizeGripEnabled (True)
 
         # Populates GUI with layouts
         layout = QtWidgets.QVBoxLayout()
@@ -126,9 +129,17 @@ class ProgramWindow(QtWidgets.QMainWindow):
     # Run program button
     def run_program(self):
         if self.input_filename != '' and self.output_filename != '':
-            assay = self.assay_choice
-            peak_data = populate_dict(self.input_filename)
-            look_for_peaks(peak_data, assay, self.output_filename)
+            try:
+                assay = self.assay_choice
+                peak_data = populate_dict(self.input_filename)
+                look_for_peaks(peak_data, assay, self.output_filename)
+                # Displays a status saying file is saved
+                self.setStatusBar(self.status_bar)
+                self.status_bar.showMessage('File has been saved to {}.'.format(self.output_filename))
+            except:
+                # Displays error
+                self.setStatusBar(self.status_bar)
+                self.status_bar.showMessage('Error. Make sure files are correct.')
 
 # Takes all data from .txt, puts it into a dictionary called peak_data
 def populate_dict(input_filename):
