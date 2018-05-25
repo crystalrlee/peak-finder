@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Takes in tab seperated .txt files with DNA peak data- generate by export all in software
+# Takes in tab-deliniated .txt files with DNA peak data- generate by export all in software
 # Outputs peaks of importance for M2, M3, Mgano, and Mhyme assays to .csv
 
 import csv
@@ -14,10 +14,11 @@ import csv
 #     ]
 # }
 
-def populate_dict():
+# Takes all data from .txt, puts it into a dictionary called peak_data
+def populate_dict(input_filename):
     peak_data = {}
     # Opens & reads a tab delineated .txt file
-    data = open("/home/crystal/Education/bio_work/python_project_MVZ/M3 export all.txt", "r")
+    data = open(input_filename, "r")
     reader = csv.reader(data, delimiter='\t')
     next(reader, None) # skips the header line
     for row in reader:
@@ -44,13 +45,45 @@ def populate_dict():
     return peak_data
 
 # Looks for important peaks
-def look_for_peaks(peak_data, assay):
+def look_for_peaks(peak_data, assay, output_filename):
     # Takes data from a .txt, populates a dictionary called peaks_of_interest
     # Keys: failed samples, then name of species IDed (depending on assay)
 
-    peaks_of_interest = {
-        'Failed Sample': [],
-    }
+    # Sets keys for dictionary depending on assay choice
+    if assay == 'm2' or assay == 'M2':
+            peaks_of_interest = {
+                'Failed Sample': [],
+                'Armillaria': [],
+                'Hericium': [],
+                'Pleurotus': [],
+                'Laetiporus': []
+            }
+    if assay == 'm3' or assay == 'M3':
+        peaks_of_interest = {
+            'Failed Sample': [],
+            'Schizophyllum': [],
+            'Perenniporia' : [],
+            'Stereum': [],
+            'Trametes': []
+        }
+    if assay == 'Mgano' or assay == 'mgano' or assay == 'MGANO':
+        peaks_of_interest = {
+            'Failed Sample': [],
+            'G. adspernum': [],
+            'G. applanatum' : [],
+            'G. lucidum': [],
+            'G. resinaceum': []
+        }
+    if assay == 'Mhyme' or assay == 'mhyme' or assay == 'MHYME':
+        peaks_of_interest= {
+            'Failed Sample': [],
+            'Inocutis': [],
+            'Fomitiporia' : [],
+            'Pseudoinonotus': [],
+            'Fuscoporia': [],
+            'Inonotus s.s.': [],
+            'Phellinus': []
+        }
     list_of_failed_samples = []
 
     # Iterates through .txt file, populates dictionary
@@ -69,13 +102,7 @@ def look_for_peaks(peak_data, assay):
                     list_of_failed_samples.append(sample)
             # Checks which assay you've run, and looks for species in assay
             # M2 assay
-            if assay == 'm2' or assay == 'M2':
-                print('M2!')
-                # Add keys for species in assay
-                peaks_of_interest['Armillaria'] = []
-                peaks_of_interest['Hericium'] = []
-                peaks_of_interest['Pleurotus'] = []
-                peaks_of_interest['Laetiporus'] = []
+            elif assay == 'm2' or assay == 'M2':
                 # Armillaria
                 if fragment['dye'].startswith('B') and 183 < fragment['size'] < 187:
                     peaks_of_interest['Armillaria'].append({
@@ -110,13 +137,6 @@ def look_for_peaks(peak_data, assay):
                     })
             # M3 assay
             elif assay == 'm3' or assay == 'M3':
-                print('M3!')
-                # Add keys for species in assay
-                peaks_of_interest['Schizophyllum'] = []
-                peaks_of_interest['Perenniporia'] = []
-                peaks_of_interest['Stereum'] = []
-                peaks_of_interest['Trametes'] = []
-
                 # Schizophyllum
                 if fragment['dye'].startswith('B') and 188 < fragment['size'] < 192:
                     peaks_of_interest['Schizophyllum'].append({
@@ -151,12 +171,6 @@ def look_for_peaks(peak_data, assay):
                     })
             # Mgano assay (Gano Derma)
             elif assay == 'Mgano' or assay == 'mgano' or assay == 'MGANO':
-                    print('Mgano!')
-                    # Add keys for species in assay
-                    peaks_of_interest['G. adspernum'] = []
-                    peaks_of_interest['G. applanatum'] = []
-                    peaks_of_interest['G. lucidum'] = []
-                    peaks_of_interest['G. resinaceum'] = []
                     # G. adspernum
                     if fragment['dye'].startswith('B') and 209 < fragment['size'] < 213:
                         peaks_of_interest['G. adspernum'].append({
@@ -191,12 +205,6 @@ def look_for_peaks(peak_data, assay):
                         })
             # Mhyme assay
             elif assay == 'Mhyme' or assay == 'mhyme' or assay == 'MHYME':
-                print('Mhyme!')
-                # Add keys for species in assay
-                peaks_of_interest['Inocutis'] = []
-                peaks_of_interest['Fomitiporia'] = []
-                peaks_of_interest['Pseudoinonotus'] = []
-                peaks_of_interest['Fuscoporia'] = []
                 # Inocutis
                 if fragment['dye'].startswith('G') and 263 < fragment['size'] < 267:
                     peaks_of_interest['Inocutis'].append({
@@ -245,11 +253,9 @@ def look_for_peaks(peak_data, assay):
                         'height': fragment['height'],
                         'quality': fragment['quality']
                     })
-            else:
-                print('That\'s not an assay.')
 
     # Takes peaks_of_interest and prints it to a .csv file
-    csvfile = open("/home/crystal/Education/bio_work/python_project_MVZ/checking-new-assays.csv", "w")
+    csvfile = open(output_filename, "w")
     writer = csv.writer(csvfile, delimiter='\t')
     # Writes header
     writer.writerow(['PEAK ID','SAMPLE', 'SIZE', 'HEIGHT', 'QUALITY'])
@@ -259,9 +265,12 @@ def look_for_peaks(peak_data, assay):
             writer.writerow([species, peak_dict['sample'], peak_dict['size'], peak_dict['height'], peak_dict['quality']])
 
 def main():
-    assay = input('What assay are you running? Type \'M2\', \'M3\', \'Mgano\' or \'Mhyme\'. \n ')
-    peak_data = populate_dict()
-    look_for_peaks(peak_data, assay)
+    assay = input('What assay are you running? Type \'M2\', \'M3\', \'Mgano\' or \'Mhyme\'. \n')
+    input_filename = "/home/crystal/Education/bio_work/python_project_MVZ/M3 export all.txt"
+    output_filename = "/home/crystal/Education/bio_work/python_project_MVZ/checking-new-assays.csv"
+    peak_data = populate_dict(input_filename)
+    look_for_peaks(peak_data, assay, output_filename)
 
 
+# Calls main function
 main()
