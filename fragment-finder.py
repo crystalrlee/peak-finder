@@ -1,7 +1,29 @@
-#!/usr/bin/env python3
+"""
+Peaks of Interest
 
-# Takes in tab-deliniated .txt files with DNA peak data- generate by export all in software
-# Outputs peaks of importance for M2, M3, Mgano, and Mhyme assays to .csv
+Copyright (c) 2018 Crystal Lee <crystalmayerlee@berkeley.edu>
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+"""
+
 from PyQt5 import QtWidgets, QtCore
 import sys
 import os
@@ -107,7 +129,6 @@ class ProgramWindow(QtWidgets.QMainWindow):
             assay = self.assay_choice
             peak_data = populate_dict(self.input_filename)
             look_for_peaks(peak_data, assay, self.output_filename)
-
 
 # Takes all data from .txt, puts it into a dictionary called peak_data
 def populate_dict(input_filename):
