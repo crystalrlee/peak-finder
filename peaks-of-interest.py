@@ -89,8 +89,9 @@ class ProgramWindow(QtWidgets.QMainWindow):
         save_button_layout.addWidget(self.save_button_display)
 
         # Run Button
-        run_button = QtWidgets.QPushButton('Run')
-        run_button.clicked.connect(self.run_program)
+        self.run_button = QtWidgets.QPushButton('Run')
+        self.run_button.setEnabled(False)
+        self.run_button.clicked.connect(self.run_program)
 
         # Status Bar (to display when files are saved)
         self.status_bar = QtWidgets.QStatusBar()
@@ -101,7 +102,7 @@ class ProgramWindow(QtWidgets.QMainWindow):
         layout.addLayout(assay_layout)
         layout.addLayout(load_button_layout)
         layout.addLayout(save_button_layout)
-        layout.addWidget(run_button)
+        layout.addWidget(self.run_button)
 
         # Main container everything goes in
         container = QtWidgets.QWidget()
@@ -118,6 +119,9 @@ class ProgramWindow(QtWidgets.QMainWindow):
         if filename != '':
             self.input_filename = filename
             self.load_button_display.setText(os.path.basename(filename))
+        # Enables run button if both files are set
+        if self.input_filename != None and self.output_filename != None:
+            self.run_button.setEnabled(True)
 
     # Defines how save button works
     def select_save_location(self):
@@ -125,6 +129,9 @@ class ProgramWindow(QtWidgets.QMainWindow):
         if filename != '':
             self.output_filename = filename
             self.save_button_display.setText(os.path.basename(filename))
+        # Enables run button if both files are set
+        if self.input_filename != None and self.output_filename != None:
+            self.run_button.setEnabled(True)
 
     # Run program button
     def run_program(self):
@@ -135,7 +142,7 @@ class ProgramWindow(QtWidgets.QMainWindow):
                 look_for_peaks(peak_data, assay, self.output_filename)
                 # Displays a status saying file is saved
                 self.setStatusBar(self.status_bar)
-                self.status_bar.showMessage('File has been saved to {}.'.format(self.output_filename))
+                self.status_bar.showMessage('File has been saved to {}'.format(self.output_filename))
             except:
                 # Displays error
                 self.setStatusBar(self.status_bar)
