@@ -2,7 +2,9 @@
 
 # Takes in tab-deliniated .txt files with DNA peak data- generate by export all in software
 # Outputs peaks of importance for M2, M3, Mgano, and Mhyme assays to .csv
-
+from PyQt5 import QtWidgets, QtCore
+import sys
+import os
 import csv
 # How dictionary peaks_of_interest is organized:
 # {
@@ -13,6 +15,78 @@ import csv
 #         {}, {}, {}
 #     ]
 # }
+
+# This class does all the GUI stuff
+class ProgramWindow(QtWidgets.QMainWindow):
+
+    def __init__(self):
+        super(ProgramWindow, self).__init__()
+
+        self.input_filename = None
+        self.output_filename = None
+
+        # Opens and styles main window
+        self.setWindowTitle('Fragment Analysis Peak Parser')
+        self.show()
+        self.resize(450, 200)
+
+        # Assay dropdown
+        assay_label = QtWidgets.QLabel('Choose assay: ')
+        assay_dropdown = QtWidgets.QComboBox(self)
+        assay_dropdown.addItem('M2')
+        assay_dropdown.addItem('M3')
+        assay_dropdown.addItem('Mgano')
+        assay_dropdown.addItem('Mhyme')
+        assay_layout = QtWidgets.QHBoxLayout()
+        assay_layout.addWidget(assay_label)
+        assay_layout.addWidget(assay_dropdown)
+        assay_layout.addStretch()
+
+        # Select Data File Button and Display
+        load_button = QtWidgets.QPushButton('Select Data File')
+        load_button.clicked.connect(self.select_data_file)
+        load_button.setMinimumWidth(130)
+        self.load_button_display = QtWidgets.QLineEdit()
+        self.load_button_display.setEnabled(False)
+        load_button_layout = QtWidgets.QHBoxLayout()
+        load_button_layout.addWidget(load_button)
+        load_button_layout.addWidget(self.load_button_display)
+
+        # Save .csv File Button and Display
+        save_button = QtWidgets.QPushButton('Select Save File')
+        save_button.clicked.connect(self.select_save_location)
+        save_button.setMinimumWidth(130)
+        self.save_button_display = QtWidgets.QLineEdit()
+        self.save_button_display.setEnabled(False)
+        save_button_layout = QtWidgets.QHBoxLayout()
+        save_button_layout.addWidget(save_button)
+        save_button_layout.addWidget(self.save_button_display)
+
+        # Populates GUI with layouts
+        layout = QtWidgets.QVBoxLayout()
+        layout.addLayout(assay_layout)
+        layout.addLayout(load_button_layout)
+        layout.addLayout(save_button_layout)
+
+        # Main container everything goes in
+        container = QtWidgets.QWidget()
+        container.setLayout(layout)
+        self.setCentralWidget(container)
+
+    # Defines how save button works
+    def select_data_file(self):
+        filename, _filter = QtWidgets.QFileDialog.getOpenFileName(self, "Select DNA fragment data file", filter="Text files (*.txt)")
+        if filename != '':
+            self.input_filename = filename
+            self.load_button_display.setText(os.path.basename(filename))
+
+    # Defines how save button works
+    def select_save_location(self):
+        filename, _filter = QtWidgets.QFileDialog.getSaveFileName(self, "Select save file location", filter="Csv files (*.csv)")
+        if filename != '':
+            self.output_filename = filename
+            self.save_button_display.setText(os.path.basename(filename))
+
 
 # Takes all data from .txt, puts it into a dictionary called peak_data
 def populate_dict(input_filename):
@@ -51,13 +125,13 @@ def look_for_peaks(peak_data, assay, output_filename):
 
     # Sets keys for dictionary depending on assay choice
     if assay == 'm2' or assay == 'M2':
-            peaks_of_interest = {
-                'Failed Sample': [],
-                'Armillaria': [],
-                'Hericium': [],
-                'Pleurotus': [],
-                'Laetiporus': []
-            }
+        peaks_of_interest = {
+            'Failed Sample': [],
+            'Armillaria': [],
+            'Hericium': [],
+            'Pleurotus': [],
+            'Laetiporus': []
+        }
     if assay == 'm3' or assay == 'M3':
         peaks_of_interest = {
             'Failed Sample': [],
@@ -265,12 +339,13 @@ def look_for_peaks(peak_data, assay, output_filename):
             writer.writerow([species, peak_dict['sample'], peak_dict['size'], peak_dict['height'], peak_dict['quality']])
 
 def main():
-    assay = input('What assay are you running? Type \'M2\', \'M3\', \'Mgano\' or \'Mhyme\'. \n')
-    input_filename = "/home/crystal/Education/bio_work/python_project_MVZ/M3 export all.txt"
-    output_filename = "/home/crystal/Education/bio_work/python_project_MVZ/checking-new-assays.csv"
-    peak_data = populate_dict(input_filename)
-    look_for_peaks(peak_data, assay, output_filename)
+    # GUI stuff
+    app = QtWidgets.QApplication(sys.argv)
+    window = ProgramWindow()
+    sys.exit(app.exec_())
+    # Put into run button function
+    # peak_data = populate_dict(input_filename)
+    # look_for_peaks(peak_data, assay, output_filename)
 
 
-# Calls main function
 main()
