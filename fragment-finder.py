@@ -32,15 +32,19 @@ class ProgramWindow(QtWidgets.QMainWindow):
 
         # Assay dropdown
         assay_label = QtWidgets.QLabel('Choose assay: ')
-        assay_dropdown = QtWidgets.QComboBox(self)
-        assay_dropdown.addItem('M2')
-        assay_dropdown.addItem('M3')
-        assay_dropdown.addItem('Mgano')
-        assay_dropdown.addItem('Mhyme')
+        self.assay_dropdown = QtWidgets.QComboBox(self)
+        self.assay_dropdown.addItem('M2')
+        self.assay_dropdown.addItem('M3')
+        self.assay_dropdown.addItem('Mgano')
+        self.assay_dropdown.addItem('Mhyme')
         assay_layout = QtWidgets.QHBoxLayout()
         assay_layout.addWidget(assay_label)
-        assay_layout.addWidget(assay_dropdown)
+        assay_layout.addWidget(self.assay_dropdown)
         assay_layout.addStretch()
+        # In case user wants default assay and doesn't click on dropdown
+        self.assay_choice = str(self.assay_dropdown.currentText())
+        # Handles choices
+        self.assay_dropdown.currentIndexChanged.connect(self.choose_assay)
 
         # Select Data File Button and Display
         load_button = QtWidgets.QPushButton('Select Data File')
@@ -62,18 +66,28 @@ class ProgramWindow(QtWidgets.QMainWindow):
         save_button_layout.addWidget(save_button)
         save_button_layout.addWidget(self.save_button_display)
 
+        # Run Button
+        run_button = QtWidgets.QPushButton('Run')
+        run_button.clicked.connect(self.run_program)
+
+
         # Populates GUI with layouts
         layout = QtWidgets.QVBoxLayout()
         layout.addLayout(assay_layout)
         layout.addLayout(load_button_layout)
         layout.addLayout(save_button_layout)
+        layout.addWidget(run_button)
 
         # Main container everything goes in
         container = QtWidgets.QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
 
-    # Defines how save button works
+    # Makes dropdown work
+    def choose_assay(self):
+        self.assay_choice = str(self.assay_dropdown.currentText())
+
+    # Makes save button work
     def select_data_file(self):
         filename, _filter = QtWidgets.QFileDialog.getOpenFileName(self, "Select DNA fragment data file", filter="Text files (*.txt)")
         if filename != '':
@@ -86,6 +100,13 @@ class ProgramWindow(QtWidgets.QMainWindow):
         if filename != '':
             self.output_filename = filename
             self.save_button_display.setText(os.path.basename(filename))
+
+    # Run program button
+    def run_program(self):
+        if self.input_filename != '' and self.output_filename != '':
+            assay = self.assay_choice
+            peak_data = populate_dict(self.input_filename)
+            look_for_peaks(peak_data, assay, self.output_filename)
 
 
 # Takes all data from .txt, puts it into a dictionary called peak_data
@@ -124,7 +145,7 @@ def look_for_peaks(peak_data, assay, output_filename):
     # Keys: failed samples, then name of species IDed (depending on assay)
 
     # Sets keys for dictionary depending on assay choice
-    if assay == 'm2' or assay == 'M2':
+    if assay == 'M2':
         peaks_of_interest = {
             'Failed Sample': [],
             'Armillaria': [],
@@ -132,7 +153,7 @@ def look_for_peaks(peak_data, assay, output_filename):
             'Pleurotus': [],
             'Laetiporus': []
         }
-    if assay == 'm3' or assay == 'M3':
+    if assay == 'M3':
         peaks_of_interest = {
             'Failed Sample': [],
             'Schizophyllum': [],
@@ -140,7 +161,7 @@ def look_for_peaks(peak_data, assay, output_filename):
             'Stereum': [],
             'Trametes': []
         }
-    if assay == 'Mgano' or assay == 'mgano' or assay == 'MGANO':
+    if assay == 'Mgano':
         peaks_of_interest = {
             'Failed Sample': [],
             'G. adspernum': [],
@@ -148,7 +169,7 @@ def look_for_peaks(peak_data, assay, output_filename):
             'G. lucidum': [],
             'G. resinaceum': []
         }
-    if assay == 'Mhyme' or assay == 'mhyme' or assay == 'MHYME':
+    if assay == 'Mhyme':
         peaks_of_interest= {
             'Failed Sample': [],
             'Inocutis': [],
@@ -176,7 +197,7 @@ def look_for_peaks(peak_data, assay, output_filename):
                     list_of_failed_samples.append(sample)
             # Checks which assay you've run, and looks for species in assay
             # M2 assay
-            elif assay == 'm2' or assay == 'M2':
+            elif assay == 'M2':
                 # Armillaria
                 if fragment['dye'].startswith('B') and 183 < fragment['size'] < 187:
                     peaks_of_interest['Armillaria'].append({
@@ -210,7 +231,7 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'quality': fragment['quality']
                     })
             # M3 assay
-            elif assay == 'm3' or assay == 'M3':
+            elif assay == 'M3':
                 # Schizophyllum
                 if fragment['dye'].startswith('B') and 188 < fragment['size'] < 192:
                     peaks_of_interest['Schizophyllum'].append({
@@ -244,7 +265,7 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'quality': fragment['quality']
                     })
             # Mgano assay (Gano Derma)
-            elif assay == 'Mgano' or assay == 'mgano' or assay == 'MGANO':
+            elif assay == 'Mgano':
                     # G. adspernum
                     if fragment['dye'].startswith('B') and 209 < fragment['size'] < 213:
                         peaks_of_interest['G. adspernum'].append({
@@ -278,7 +299,7 @@ def look_for_peaks(peak_data, assay, output_filename):
                             'quality': fragment['quality']
                         })
             # Mhyme assay
-            elif assay == 'Mhyme' or assay == 'mhyme' or assay == 'MHYME':
+            elif assay == 'Mhyme':
                 # Inocutis
                 if fragment['dye'].startswith('G') and 263 < fragment['size'] < 267:
                     peaks_of_interest['Inocutis'].append({
@@ -339,13 +360,8 @@ def look_for_peaks(peak_data, assay, output_filename):
             writer.writerow([species, peak_dict['sample'], peak_dict['size'], peak_dict['height'], peak_dict['quality']])
 
 def main():
-    # GUI stuff
-    app = QtWidgets.QApplication(sys.argv)
-    window = ProgramWindow()
-    sys.exit(app.exec_())
-    # Put into run button function
-    # peak_data = populate_dict(input_filename)
-    # look_for_peaks(peak_data, assay, output_filename)
-
+    app = QtWidgets.QApplication(sys.argv) # Starts GUI code
+    window = ProgramWindow() # Opens GUI window
+    sys.exit(app.exec_()) # Exits GUI program
 
 main()
