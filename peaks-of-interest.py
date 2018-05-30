@@ -178,11 +178,8 @@ def populate_dict(input_filename):
         })
     return peak_data
 
-# Looks for important peaks
+# Checks for peaks
 def look_for_peaks(peak_data, assay, output_filename):
-    # Takes data from a .txt, populates a dictionary called peaks_of_interest
-    # Keys: failed samples, then name of species IDed (depending on assay)
-
     # Sets keys for dictionary depending on assay choice
     if assay == 'M2':
         peaks_of_interest = {
@@ -221,7 +218,13 @@ def look_for_peaks(peak_data, assay, output_filename):
     list_of_failed_samples = []
 
     # Iterates through .txt file, populates dictionary
-    for sample in peak_data:
+    for sample in peak_data: # iterates through samples
+        # iterates through every line of data for a particular sample
+        # Sets fungi to false, helps check if they're found for later
+        Armillaria = False
+        Hericium = False
+        Pleurotus = False
+        Laetiporus = False
         for fragment in peak_data[sample]:
             # Looks for failed samples
             if fragment['quality'] == 'Fail':
@@ -236,7 +239,7 @@ def look_for_peaks(peak_data, assay, output_filename):
                     list_of_failed_samples.append(sample)
             # Checks which assay you've run, and looks for species in assay
             # M2 assay
-            elif assay == 'M2':
+            if assay == 'M2':
                 # Armillaria
                 if fragment['dye'].startswith('B') and 183 < fragment['size'] < 187:
                     peaks_of_interest['Armillaria'].append({
@@ -245,6 +248,7 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'height': fragment['height'],
                         'quality': fragment['quality']
                     })
+                    Armillaria = True
                 # Hericium
                 if fragment['dye'].startswith('G') and 198 < fragment['size'] < 202:
                     peaks_of_interest['Hericium'].append({
@@ -253,6 +257,7 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'height': fragment['height'],
                         'quality': fragment['quality']
                     })
+                    Hericium = True
                 # Pleurotus
                 if fragment['dye'].startswith('G') and 156 < fragment['size'] < 160:
                     peaks_of_interest['Pleurotus'].append({
@@ -261,6 +266,7 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'height': fragment['height'],
                         'quality': fragment['quality']
                     })
+                    Pleurotus = True
                 # Laetiporus
                 if fragment['dye'].startswith('G') and 219 < fragment['size'] < 223:
                     peaks_of_interest['Laetiporus'].append({
@@ -269,8 +275,9 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'height': fragment['height'],
                         'quality': fragment['quality']
                     })
+                    Laetiporus = True
             # M3 assay
-            elif assay == 'M3':
+            if assay == 'M3':
                 # Schizophyllum
                 if fragment['dye'].startswith('B') and 188 < fragment['size'] < 192:
                     peaks_of_interest['Schizophyllum'].append({
@@ -304,7 +311,7 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'quality': fragment['quality']
                     })
             # Mgano assay (Gano Derma)
-            elif assay == 'Mgano':
+            if assay == 'Mgano':
                     # G. adspernum
                     if fragment['dye'].startswith('B') and 209 < fragment['size'] < 213:
                         peaks_of_interest['G. adspernum'].append({
@@ -338,7 +345,7 @@ def look_for_peaks(peak_data, assay, output_filename):
                             'quality': fragment['quality']
                         })
             # Mhyme assay
-            elif assay == 'Mhyme':
+            if assay == 'Mhyme':
                 # Inocutis
                 if fragment['dye'].startswith('G') and 263 < fragment['size'] < 267:
                     peaks_of_interest['Inocutis'].append({
@@ -387,6 +394,41 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'height': fragment['height'],
                         'quality': fragment['quality']
                     })
+        # Makes note of if a sample didn't have any peaks for a fungal species
+        if assay == 'M2'and sample not in list_of_failed_samples:
+            if not Armillaria:
+                peaks_of_interest['Armillaria'].append({
+                    'sample': sample,
+                    'size': '-',
+                    'height': '-',
+                    'quality': '-'
+                })
+            if not Hericium:
+                 peaks_of_interest['Hericium'].append({
+                    'sample': sample,
+                    'size': '-',
+                    'height': '-',
+                    'quality': '-'
+                 })
+            if not Pleurotus:
+                 peaks_of_interest['Pleurotus'].append({
+                    'sample': sample,
+                    'size': '-',
+                    'height': '-',
+                    'quality': '-'
+                 })
+            if not Laetiporus:
+                 peaks_of_interest['Laetiporus'].append({
+                    'sample': sample,
+                    'size': '-',
+                    'height': '-',
+                    'quality': '-'
+                 })
+        # if assay == 'M3':
+        #
+        # if assay == 'Mgano':
+        #
+        # if assay == 'Mhyme':
 
     # Takes peaks_of_interest and prints it to a .csv file
     csvfile = open(output_filename, "w")
@@ -397,6 +439,7 @@ def look_for_peaks(peak_data, assay, output_filename):
     for species in peaks_of_interest:
         for peak_dict in peaks_of_interest[species]:
             writer.writerow([species, peak_dict['sample'], peak_dict['size'], peak_dict['height'], peak_dict['quality']])
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv) # Starts GUI code
