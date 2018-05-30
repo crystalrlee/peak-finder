@@ -28,12 +28,25 @@ from PyQt5 import QtWidgets, QtCore
 import sys
 import os
 import csv
-# How dictionary peaks_of_interest is organized:
+# How peak_data is organized:
 # {
 #     sample_name1:[
-#         {'quality': '', 'dye': '', 'size': '', height: ''}, {}, {}
+#         {'quality': '', 'dye': '', 'size': '', height: ''},
+#         {'quality': '', 'dye': '', 'size': '', height: ''}, {}
 #     ],
 #     sample_name2:[
+#         {}, {}, {}
+#     ]
+# }
+
+# How peaks_of_interest is organized:
+# {
+#     species_name1:[
+#         { 'sample': '', 'size': '', height: '', 'quality': ''},
+#         { 'sample': '', 'size': '', height: '', 'quality': ''},
+#         { 'sample': '', 'size': '', height: '', 'quality': ''}
+#     ],
+#     species_name2:[
 #         {}, {}, {}
 #     ]
 # }
@@ -183,7 +196,6 @@ def look_for_peaks(peak_data, assay, output_filename):
     # Sets keys for dictionary depending on assay choice
     if assay == 'M2':
         peaks_of_interest = {
-            'Failed Sample': [],
             'Armillaria': [],
             'Hericium': [],
             'Pleurotus': [],
@@ -191,7 +203,6 @@ def look_for_peaks(peak_data, assay, output_filename):
         }
     if assay == 'M3':
         peaks_of_interest = {
-            'Failed Sample': [],
             'Schizophyllum': [],
             'Perenniporia' : [],
             'Stereum': [],
@@ -199,7 +210,6 @@ def look_for_peaks(peak_data, assay, output_filename):
         }
     if assay == 'Mgano':
         peaks_of_interest = {
-            'Failed Sample': [],
             'G. adspernum': [],
             'G. applanatum' : [],
             'G. lucidum': [],
@@ -207,7 +217,6 @@ def look_for_peaks(peak_data, assay, output_filename):
         }
     if assay == 'Mhyme':
         peaks_of_interest= {
-            'Failed Sample': [],
             'Inocutis': [],
             'Fomitiporia' : [],
             'Pseudoinonotus': [],
@@ -215,17 +224,16 @@ def look_for_peaks(peak_data, assay, output_filename):
             'Inonotus s.s.': [],
             'Phellinus': []
         }
+    # Creates empty list to hold failed samples
     list_of_failed_samples = []
+    # Adds a key for failed sample to peaks_of_interest dictionary
+    peaks_of_interest['Failed Sample'] = []
 
     # Iterates through .txt file, populates dictionary
     for sample in peak_data: # iterates through samples
         # iterates through every line of data for a particular sample
-        # Sets fungi to false, helps check if they're found for later
-        Armillaria = False
-        Hericium = False
-        Pleurotus = False
-        Laetiporus = False
         for fragment in peak_data[sample]:
+            quality = fragment['quality'] # Saves quality for use in line 411
             # Looks for failed samples
             if fragment['quality'] == 'Fail':
                 # makes sure each failed sample only listed once in .csv file
@@ -237,7 +245,7 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'quality': fragment['quality']
                     })
                     list_of_failed_samples.append(sample)
-            # Checks which assay you've run, and looks for species in assay
+            # Checks which assay you've run, and looks for important peaks
             # M2 assay
             if assay == 'M2':
                 # Armillaria
@@ -248,7 +256,6 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'height': fragment['height'],
                         'quality': fragment['quality']
                     })
-                    Armillaria = True
                 # Hericium
                 if fragment['dye'].startswith('G') and 198 < fragment['size'] < 202:
                     peaks_of_interest['Hericium'].append({
@@ -257,7 +264,6 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'height': fragment['height'],
                         'quality': fragment['quality']
                     })
-                    Hericium = True
                 # Pleurotus
                 if fragment['dye'].startswith('G') and 156 < fragment['size'] < 160:
                     peaks_of_interest['Pleurotus'].append({
@@ -266,7 +272,6 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'height': fragment['height'],
                         'quality': fragment['quality']
                     })
-                    Pleurotus = True
                 # Laetiporus
                 if fragment['dye'].startswith('G') and 219 < fragment['size'] < 223:
                     peaks_of_interest['Laetiporus'].append({
@@ -275,7 +280,6 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'height': fragment['height'],
                         'quality': fragment['quality']
                     })
-                    Laetiporus = True
             # M3 assay
             if assay == 'M3':
                 # Schizophyllum
@@ -394,41 +398,24 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'height': fragment['height'],
                         'quality': fragment['quality']
                     })
-        # Makes note of if a sample didn't have any peaks for a fungal species
-        if assay == 'M2'and sample not in list_of_failed_samples:
-            if not Armillaria:
-                peaks_of_interest['Armillaria'].append({
-                    'sample': sample,
-                    'size': '-',
-                    'height': '-',
-                    'quality': '-'
-                })
-            if not Hericium:
-                 peaks_of_interest['Hericium'].append({
-                    'sample': sample,
-                    'size': '-',
-                    'height': '-',
-                    'quality': '-'
-                 })
-            if not Pleurotus:
-                 peaks_of_interest['Pleurotus'].append({
-                    'sample': sample,
-                    'size': '-',
-                    'height': '-',
-                    'quality': '-'
-                 })
-            if not Laetiporus:
-                 peaks_of_interest['Laetiporus'].append({
-                    'sample': sample,
-                    'size': '-',
-                    'height': '-',
-                    'quality': '-'
-                 })
-        # if assay == 'M3':
-        #
-        # if assay == 'Mgano':
-        #
-        # if assay == 'Mhyme':
+
+        # If a sample didn't have any peaks for a fungal species (e.g., H2O sample)
+        # this code makes sure it's still included in the spreadsheet
+        if sample not in list_of_failed_samples:
+            for key in peaks_of_interest:
+                if key != 'Failed Sample':
+                    found = False
+                    # Goes through list of dictionaries associated with each species key
+                    for dictionary in peaks_of_interest[key]:
+                        if dictionary['sample'] == sample:
+                            found = True
+                    if found == False:
+                        peaks_of_interest[key].append({
+                            'sample': sample,
+                            'size': '-',
+                            'height': '-',
+                            'quality': quality
+                        })
 
     # Takes peaks_of_interest and prints it to a .csv file
     csvfile = open(output_filename, "w")
