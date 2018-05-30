@@ -409,6 +409,7 @@ def look_for_peaks(peak_data, assay, output_filename):
                     for dictionary in peaks_of_interest[key]:
                         if dictionary['sample'] == sample:
                             found = True
+                            break
                     if found == False:
                         peaks_of_interest[key].append({
                             'sample': sample,
