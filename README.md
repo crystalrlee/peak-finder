@@ -1,5 +1,5 @@
 # Peaks of Interest
-Automated peak finder for fragment analysis data from Peak Scanner program. 
+Automated peak finder for fragment analysis data from Peak Scanner program using assays. 
 
 ## Setting up a Windows development/run environment
 
@@ -21,6 +21,4 @@ Go to https://www1.qt.io/offline-installers/ and click on Qt 5.11.0 for Windows(
 just press the "skip" button when it asks for account info. Install Qt.
 
 ## Using the Program
-```sh
-Need to add instructions
-```
+Process data using Peak Scanner. Export as "Export Combined Table". Click on .bat file "run" in folder containing Peaks of Interest python code. Choose assay, data file, and save file. Click Run. If any error occurs in program status bar will output an error, saying that the user should check files. 
