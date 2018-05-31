@@ -21,4 +21,5 @@ Go to https://www1.qt.io/offline-installers/ and click on Qt 5.11.0 for Windows(
 just press the "skip" button when it asks for account info. Install Qt.
 
 ## Using the Program
-Process data using Peak Scanner. Export as "Export Combined Table". Click on .bat file "run" in folder containing Peaks of Interest python code. Choose assay, data file, and save file. Click Run. If any error occurs in program status bar will output an error, saying that the user should check files. 
+Process data using Peak Scanner. Export as "Export Combined Table". Click on .bat file "run" in folder containing Peaks of Interest python code. Choose assay, data file, and save file. Click Run. A command terminal will popup along with the program. If any error occurs in program status bar will output an error, saying that the user should check files. To close the program, simply close either the GUI window or the command terminal.
+
