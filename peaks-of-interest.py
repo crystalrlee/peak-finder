@@ -308,7 +308,7 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'quality': fragment['quality']
                     })
                 # Stereum
-                if fragment['dye'].startswith('B') and 231 < fragment['size'] < 236 or fragment['dye'].startswith('B') and 241 < fragment['size'] < 245:
+                if fragment['dye'].startswith('B') and 230 < fragment['size'] < 237 or fragment['dye'].startswith('B') and 241 < fragment['size'] < 245:
                     peaks_of_interest['Stereum'].append({
                         'sample': sample,
                         'size': fragment['size'],
