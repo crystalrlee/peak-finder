@@ -28,14 +28,18 @@ from PyQt5 import QtWidgets, QtCore
 import sys
 import os
 import csv
+
 # How peak_data is organized:
 # {
 #     sample_name1:[
 #         {'quality': '', 'dye': '', 'size': '', height: ''},
-#         {'quality': '', 'dye': '', 'size': '', height: ''}, {}
+#         {'quality': '', 'dye': '', 'size': '', height: ''},
+#         ...
 #     ],
 #     sample_name2:[
-#         {}, {}, {}
+#         {'quality': '', 'dye': '', 'size': '', height: ''},
+#         {'quality': '', 'dye': '', 'size': '', height: ''},
+#         ...
 #     ]
 # }
 
@@ -44,10 +48,12 @@ import csv
 #     species_name1:[
 #         { 'sample': '', 'size': '', height: '', 'quality': ''},
 #         { 'sample': '', 'size': '', height: '', 'quality': ''},
-#         { 'sample': '', 'size': '', height: '', 'quality': ''}
+#         ...
 #     ],
 #     species_name2:[
-#         {}, {}, {}
+#         { 'sample': '', 'size': '', height: '', 'quality': ''},
+#         { 'sample': '', 'size': '', height: '', 'quality': ''},
+#         ...
 #     ]
 # }
 
@@ -156,6 +162,9 @@ class ProgramWindow(QtWidgets.QMainWindow):
                 # Displays a status saying file is saved
                 self.setStatusBar(self.status_bar)
                 self.status_bar.showMessage('File has been saved to {}'.format(self.output_filename))
+                self.load_button_display.setText('')
+                self.save_button_display.setText('')
+                self.run_button.setEnabled(False)
             except:
                 # Displays error
                 self.setStatusBar(self.status_bar)
@@ -427,7 +436,6 @@ def look_for_peaks(peak_data, assay, output_filename):
     for species in peaks_of_interest:
         for peak_dict in peaks_of_interest[species]:
             writer.writerow([species, peak_dict['sample'], peak_dict['size'], peak_dict['height'], peak_dict['quality']])
-
 
 def main():
     app = QtWidgets.QApplication(sys.argv) # Starts GUI code
