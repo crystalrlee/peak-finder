@@ -282,7 +282,7 @@ def look_for_peaks(peak_data, assay, output_filename):
                         'quality': fragment['quality']
                     })
                 # Laetiporus
-                if fragment['dye'].startswith('G') and 219 < fragment['size'] < 223:
+                if fragment['dye'].startswith('G') and 144 < fragment['size'] < 148:
                     peaks_of_interest['Laetiporus'].append({
                         'sample': sample,
                         'size': fragment['size'],
