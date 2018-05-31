@@ -219,7 +219,7 @@ def look_for_peaks(peak_data, assay, output_filename):
         }
     if assay == 'Mgano':
         peaks_of_interest = {
-            'G. adspernum': [],
+            'G. adspersum': [],
             'G. applanatum' : [],
             'G. lucidum': [],
             'G. resinaceum': []
@@ -325,9 +325,9 @@ def look_for_peaks(peak_data, assay, output_filename):
                     })
             # Mgano assay (Gano Derma)
             if assay == 'Mgano':
-                    # G. adspernum
+                    # G. adspersum
                     if fragment['dye'].startswith('B') and 209 < fragment['size'] < 213:
-                        peaks_of_interest['G. adspernum'].append({
+                        peaks_of_interest['G. adspersum'].append({
                             'sample': sample,
                             'size': fragment['size'],
                             'height': fragment['height'],
